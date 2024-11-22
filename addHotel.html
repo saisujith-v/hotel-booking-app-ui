@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Add Hotel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-user-shield me-2"></i>
+                Admin Dashboard
+            </a>
+            <div class="d-flex">
+                <button id="btnSignIn" class="btn btn-outline-light">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+                <button id="btnSignOut" class="btn btn-outline-light ms-2" style="display: none;">
+                    <i class="fas fa-sign-out-alt me-2"></i>Sign Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container flex-grow-1 py-4">
+        <!-- Page Title -->
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="mb-0">Add New Hotel</h2>
+            </div>
+            <div class="col text-end">
+                <a href="index.html" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+        </div>
+
+        <!-- Hotel Form Card -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form id="upload-form" enctype="multipart/form-data" method="post" 
+                      action="https://y6ut2dp22c.execute-api.us-east-1.amazonaws.com/FInal/">
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="hotelName" class="form-label fw-bold">
+                                    <i class="fas fa-hotel me-2"></i>Hotel Name
+                                </label>
+                                <input type="text" name="hotelName" id="hotelName" maxlength="100" 
+                                       class="form-control" placeholder="Enter hotel name" required />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="hotelCity" class="form-label fw-bold">
+                                    <i class="fas fa-city me-2"></i>City
+                                </label>
+                                <select name="hotelCity" id="hotelCity" class="form-select" required>
+                                    <option value="" disabled>Select a city</option>
+                                    <option value="San Francisco">San Francisco</option>
+                                    <option value="San Jose">San Jose</option>
+                                    <option value="Oakland">Oakland</option>
+                                    <option value="Mountain View">Mountain View</option>
+                                    <option value="Santa Cruz">Santa Cruz</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="hotelPrice" class="form-label fw-bold">
+                                    <i class="fas fa-tag me-2"></i>Price per Night
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" name="hotelPrice" id="hotelPrice" 
+                                           min="1" max="1000" placeholder="Enter price" 
+                                           class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="hotelRating" class="form-label fw-bold">
+                                    <i class="fas fa-star me-2"></i>Rating
+                                </label>
+                                <input type="number" name="hotelRating" id="hotelRating" 
+                                       min="1" max="5" step="0.1" value="5" 
+                                       class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <input type="hidden" name="userId" id="userId" value="1">
+                            <input type="hidden" name="idToken" id="idToken" value="2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Hotel
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 Admin Dashboard. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-decoration-none text-muted me-3">Privacy Policy</a>
+                    <a href="#" class="text-decoration-none text-muted me-3">Terms of Service</a>
+                    <a href="#" class="text-decoration-none text-muted">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="scripts/amazon-cognito-auth.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/cognito.js"></script>
+    <script>
+        $(function () {
+            cognitoApp.Init();
+            pageLoad();
+
+            setAuthHeader();
+            $("#userId").val(currentUserToken.currentUserId);
+            $("#idToken").val(currentUserToken.idToken);
+        });
+    </script>
+</body>
+</html>

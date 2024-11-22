@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Your Bookings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-hotel me-2"></i>
+                Hotel Bookings
+            </a>
+            <div class="d-flex">
+                <button id="btnSignIn" class="btn btn-outline-light">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+                <button id="btnSignOut" class="btn btn-outline-light ms-2" style="display: none;">
+                    <i class="fas fa-sign-out-alt me-2"></i>Sign Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container flex-grow-1 py-4">
+        <!-- Page Title and Book Hotels Button -->
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="mb-0">Your Bookings</h2>
+            </div>
+            <div class="col text-end">
+                <a href="/hotel/search.html" class="btn btn-success">
+                    <i class="fas fa-plus-circle me-2"></i>Book New Hotel
+                </a>
+            </div>
+        </div>
+
+        <!-- Bookings List Card -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <!-- No Bookings Message (Hidden by default) -->
+                <div id="noBookingsMessage" class="text-center py-5" style="display: none;">
+                    <div class="text-muted mb-3">
+                        <i class="fas fa-calendar-xmark fa-3x"></i>
+                    </div>
+                    <h5 class="text-muted mb-3">No Bookings Found</h5>
+                    <p class="text-muted mb-4">You haven't made any hotel bookings yet.</p>
+                    <a href="/hotel/search.html" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Book Your First Hotel
+                    </a>
+                </div>
+
+                <!-- Bookings Table -->
+                <div id="bookingsTable" class="table-responsive">
+                    <table id="tblHotels" class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Hotel Name</th>
+                                <th scope="col">City</th>
+                                <th scope="col">Check In</th>
+                                <th scope="col">Check Out</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 Hotel Bookings. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-decoration-none text-muted me-3">Privacy Policy</a>
+                    <a href="#" class="text-decoration-none text-muted me-3">Terms of Service</a>
+                    <a href="#" class="text-decoration-none text-muted">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="scripts/amazon-cognito-auth.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/cognito.js"></script>
+    <script>
+        $(function () {
+            cognitoApp.Init();
+            pageLoad();
+            displayMyBookings();
+        });
+
+        function displayMyBookings() {
+            $.ajax({
+                url: "https://f2rkl4gqbqtutbgvpuv6e7cwyu0gwzck.lambda-url.us-east-1.on.aws/bookings/",
+                type: "get",
+                dataType: "json",
+                data: { 
+                    idToken: currentUserToken.idToken,
+                    userId: currentUserToken.currentUserId
+                },
+                success: function(response) {
+                    if (typeof response === "string") {
+                        response = JSON.parse(response);
+                    }
+                    
+                    var table = $("#tblHotels").find("tbody");
+                    table.empty(); // Clear existing rows
+                    
+                    if (!response.bookings || response.bookings.length === 0) {
+                        // Show no bookings message and hide table
+                        $("#bookingsTable").hide();
+                        $("#noBookingsMessage").show();
+                    } else {
+                        // Show table and hide no bookings message
+                        $("#bookingsTable").show();
+                        $("#noBookingsMessage").hide();
+                        
+                        // Populate table
+                        $.each(response.bookings, function(index, hotel) {
+                            var row = $('<tr>');
+                            row.append($('<td>').text(hotel.HotelName));
+                            row.append($('<td>').text(hotel.City));
+                            row.append($('<td>').text(hotel.CheckinDate));
+                            row.append($('<td>').text(hotel.CheckoutDate));
+                            table.append(row);
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error loading bookings:", error);
+                    // Show error message in the card
+                    $("#bookingsTable").hide();
+                    $("#noBookingsMessage")
+                        .show()
+                        .html(`
+                            <div class="text-muted mb-3">
+                                <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
+                            </div>
+                            <h5 class="text-danger mb-3">Error Loading Bookings</h5>
+                            <p class="text-muted mb-4">Unable to load your bookings. Please try again later.</p>
+                        `);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
